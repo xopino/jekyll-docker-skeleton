@@ -14,9 +14,16 @@ build:
 init:
 	docker run --name $(CONTAINER_NAME) --rm -v "$$PWD:/srv/jekyll" jekyll/jekyll jekyll new . --force
 
-# Run the Docker container
+# Run the Docker container with a health check
 run:
 	docker run --name $(CONTAINER_NAME) -d -p $(HOST_PORT):$(CONTAINER_PORT) -v "$$PWD:/srv/jekyll" -it $(IMAGE_NAME)
+	@echo "Waiting for Jekyll server to start..."
+	@until curl -s http://localhost:$(HOST_PORT) > /dev/null; do \
+	    echo -n "."; \
+	    sleep 1; \
+	done
+	@echo "\nJekyll server is up and running!"
+
 
 # Stop the Docker container
 stop:
